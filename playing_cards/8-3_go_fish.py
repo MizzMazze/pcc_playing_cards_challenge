@@ -92,8 +92,10 @@ def player_ask(player, opponent, player_table):
 		pick_generator = (i for i, c in enumerate(player) if pick in c)
 		pick_index = next(pick_generator)
 		while index <= len(opponent)-1:
-			print(pick[:2], opponent[index][:2])
-			if pick[:2].strip() == opponent[index][:2].strip():
+			print(pick_index)
+			print(player[pick_index], opponent[index])
+			if same_value(player[pick_index], opponent[index]):
+			# if pick[:2].strip() == opponent[index][:2].strip():
 				print(f"Found a pair {player[pick_index]} and {opponent[index]}")
 				print("Removing pair from decks")
 				pair.append(player[pick_index])
