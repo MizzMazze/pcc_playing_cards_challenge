@@ -81,13 +81,10 @@ def pick_card(player_hand):
 			pick_value = get_value(pick)
 			print(f"Do you have a {pick_value}?")
 			get_pick_index = int(''.join([str(player_hand.index(n)) for n in player_hand if pick_value in get_value(n)]))
-			print(get_pick_index, type(get_pick_index))
 			# variation: get pick index by using a generator -> from stackoverflow.
 			# pick_generator = (i for i, c in enumerate(player_hand) if pick in c)
 			# pick_index = next(pick_generator)
-			print(pick, get_pick_index)
-			return get_pick_index
-			# return pick_index
+			return player_hand[get_pick_index]
 		print("This card is not in your hand.")
 
 def player_ask(player, opponent, player_table):
@@ -96,23 +93,23 @@ def player_ask(player, opponent, player_table):
 	pair = []
 	len_opponent_hand = len(opponent)-1
 	while True:
-		pick_index = pick_card(player)
+		pick = pick_card(player)
 		while index <= len_opponent_hand:
-			print(index, len(opponent)-1)
-			if same_value(player[pick_index], opponent[index]):
-				print(f"Found a pair {player[pick_index]} and {opponent[index]}")
+			if same_value(pick, opponent[index]):
+				print(f"Found a pair {pick} and {opponent[index]}")
 				print("Removing pair from decks")
-				pair.append(player[pick_index])
+				pair.append(pick)
 				pair.append(opponent[index])
 				player_table.append(pair)
 				pair = []
-				del player[pick_index]
+				player.remove(pick)
 				del opponent[index]
-				if not player:
+				if not player or not opponent:
 					return player_table
 				index = 0
 				len_opponent_hand = len(opponent)-1
-				pick_index = pick_card(player)
+				pick = pick_card(player)
+				continue
 			else:
 				index += 1
 		print("Go Fish")
@@ -120,6 +117,36 @@ def player_ask(player, opponent, player_table):
 		player, player_table = check_pairs(player, player_table)
 		return player_table
 
+def computer_ask(computer_hand, opponent_hand, computer_table):
+	opponent_hand.sort()
+	index = 0
+	pair = []
+	len_opponent_hand = len(opponent_hand)-1
+	while True:
+		print(f"The computers hand {computer_hand}")
+		computer_pick = choice(computer_hand)
+		print(f"Do you have any {get_value(computer_pick)}s ?")
+		while index <= len_opponent_hand:
+			if same_value(computer_pick, opponent_hand[index]):
+				print(f"Found a pair of {computer_pick} and {opponent_hand[index]}")
+				print("Adding pair to my table")
+				pair.append(computer_pick)
+				pair.append(opponent_hand[index])
+				computer_table.append(pair)
+				pair = []
+				computer_hand.remove(computer_pick)
+				del opponent_hand[index]
+				if not computer_hand or opponent_hand:
+					return computer_table
+				index = 0
+				len_opponent_hand = len(opponent_hand)-1
+				computer_pick = choice(computer_hand)
+			else:
+				index += 1
+		print("Computer, you have to go Fish")
+		computer_hand.append(deal_top_card(hands_deal))
+		computer_hand, computer_table = check_pairs(computer_hand, computer_table)
+		return computer_table
 
 
 # Game start
@@ -155,9 +182,9 @@ while len(player1) > 0 and len(player2) > 0:
 		break
 	print("player 2 turn")
 	# Cheat print for testing purposes
+	print("computers turn")
 	print(f"Hand of player 1: {player1}")
-	player2_table = player_ask(player2, player1, player2_table)
-	print(len(player1), len(player2))
+	player2_table = computer_ask(player2, player1, player2_table)
 
 # Winning conditions:
 if len(player1_table) > len(player2_table):
