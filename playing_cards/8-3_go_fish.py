@@ -78,24 +78,28 @@ def pick_card(player_hand):
 		print(f"your hand {player_hand}")
 		pick = input("Pick a card from your hand: ")
 		if any(pick in card for card in player_hand):
-			print(f"Do you have a {values_dict[pick]}?")
-			return pick
+			pick_value = get_value(pick)
+			print(f"Do you have a {pick_value}?")
+			get_pick_index = int(''.join([str(player_hand.index(n)) for n in player_hand if pick_value in get_value(n)]))
+			print(get_pick_index, type(get_pick_index))
+			# variation: get pick index by using a generator -> from stackoverflow.
+			# pick_generator = (i for i, c in enumerate(player_hand) if pick in c)
+			# pick_index = next(pick_generator)
+			print(pick, get_pick_index)
+			return get_pick_index
+			# return pick_index
 		print("This card is not in your hand.")
 
 def player_ask(player, opponent, player_table):
 	opponent.sort()
 	index = 0
 	pair = []
+	len_opponent_hand = len(opponent)-1
 	while True:
-		# pick = input("Pick a card from your hand: ")
-		pick = pick_card(player)
-		pick_generator = (i for i, c in enumerate(player) if pick in c)
-		pick_index = next(pick_generator)
-		while index <= len(opponent)-1:
-			print(pick_index)
-			print(player[pick_index], opponent[index])
+		pick_index = pick_card(player)
+		while index <= len_opponent_hand:
+			print(index, len(opponent)-1)
 			if same_value(player[pick_index], opponent[index]):
-			# if pick[:2].strip() == opponent[index][:2].strip():
 				print(f"Found a pair {player[pick_index]} and {opponent[index]}")
 				print("Removing pair from decks")
 				pair.append(player[pick_index])
@@ -104,11 +108,13 @@ def player_ask(player, opponent, player_table):
 				pair = []
 				del player[pick_index]
 				del opponent[index]
-				index = 0
 				if not player:
 					return player_table
-				pick = pick_card(player)
-			index += 1
+				index = 0
+				len_opponent_hand = len(opponent)-1
+				pick_index = pick_card(player)
+			else:
+				index += 1
 		print("Go Fish")
 		player.append(deal_top_card(hands_deal))
 		player, player_table = check_pairs(player, player_table)
@@ -119,7 +125,6 @@ def player_ask(player, opponent, player_table):
 # Game start
 players = 2
 hand_size = 7
-values_dict = {'1':'1', '2':'2', '3':'3', '4':'4', '5':'5', '6':'6', '7':'7', '8':'8', '9':'9', '10':'10', 'J':'Jack', 'Q':'Queen', 'K':'King', 'A':'Ace'}
 
 hands_deal = shuffle_deck(build_deck())
 hands = deal_hands(hands_deal, hand_size, players)
