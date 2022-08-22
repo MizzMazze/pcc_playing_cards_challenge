@@ -105,49 +105,69 @@ def player_ask(player, opponent, player_table):
 				player.remove(pick)
 				del opponent[index]
 				if not player or not opponent:
-					return player_table
+					return player_table, pick
 				index = 0
 				len_opponent_hand = len(opponent)-1
 				pick = pick_card(player)
 				continue
 			else:
 				index += 1
-		print("Go Fish")
-		player.append(deal_top_card(hands_deal))
+		player_go_fish()
 		player, player_table = check_pairs(player, player_table)
-		return player_table
+		player1_last_picks.append(get_value(pick))
+		return player_table, player1_last_picks
 
-def computer_ask(computer_hand, opponent_hand, computer_table):
+def player_go_fish():
+	print("Go Fish!")
+	player1.append(deal_top_card(hands_deal))
+	return player1
+
+
+def computer_pick(computer_hand, opponent_last_picks):
+	print(f"the previous picks from player 1: {opponent_last_picks}")
+	for c in computer_hand:
+		if get_value(c) in opponent_last_picks:
+			opponent_last_picks.remove(get_value(c))
+			return c
+	return choice(computer_hand)
+
+def computer_ask(computer_hand, computer_table, opponent_hand, opponent_last_picks):
 	opponent_hand.sort()
 	index = 0
 	pair = []
 	len_opponent_hand = len(opponent_hand)-1
 	while True:
-		print(f"The computers hand {computer_hand}")
-		computer_pick = choice(computer_hand)
-		print(f"Do you have any {get_value(computer_pick)}s ?")
+		computer_card = computer_pick(computer_hand, opponent_last_picks)
+		print(f"Do you have any {get_value(computer_card)}?")
 		while index <= len_opponent_hand:
-			if same_value(computer_pick, opponent_hand[index]):
-				print(f"Found a pair of {computer_pick} and {opponent_hand[index]}")
+			if same_value(computer_card, opponent_hand[index]):
+				print(f"Found a pair of {computer_card} and {opponent_hand[index]}")
 				print("Adding pair to my table")
-				pair.append(computer_pick)
+				pair.append(computer_card)
 				pair.append(opponent_hand[index])
 				computer_table.append(pair)
 				pair = []
-				computer_hand.remove(computer_pick)
+				computer_hand.remove(computer_card)
 				del opponent_hand[index]
-				if not computer_hand or opponent_hand:
-					return computer_table
+				if not computer_hand or not opponent_hand:
+					return computer_table, computer_card
 				index = 0
 				len_opponent_hand = len(opponent_hand)-1
-				computer_pick = choice(computer_hand)
+				computer_card = computer_pick(computer_hand, opponent_last_picks)
+				print(f"Do you have any {get_value(computer_card)}?")
+				continue
 			else:
 				index += 1
-		print("Computer, you have to go Fish")
-		computer_hand.append(deal_top_card(hands_deal))
+		computer_hand = computer_go_fish()
 		computer_hand, computer_table = check_pairs(computer_hand, computer_table)
-		return computer_table
+		player2_last_picks.append(computer_card)
+		# return computer_table, computer_card
+		return computer_table, player2_last_picks
 
+def computer_go_fish():
+	print("Go Fish!")
+	player2.append(deal_top_card(hands_deal))
+	return player2
 
 # Game start
 players = 2
@@ -160,10 +180,12 @@ hands = deal_hands(hands_deal, hand_size, players)
 player1 = hands[0]
 # player1 = ['A of spades', 'K of clubs', 'Q of hearts', 'J of diamonds']
 player1_table = []
+player1_last_picks = []
+
 player2 = hands[1]
 # player2 = ['A of diamonds', 'K of spades', 'Q of clubs', 'J of hearts', '10 of spades']
 player2_table = []
-
+player2_last_picks = []
 
 
 
@@ -172,26 +194,36 @@ player2, player2_table = check_pairs(player2, player2_table)
 
 # Game running
 while len(player1) > 0 and len(player2) > 0:
+
 	if not player1 or not player2:
 		break
 	print("player 1 turn")
 	# Cheat print for testing purposes
-	print(f"Hand of player 2: {player2}")
-	player1_table = player_ask(player1, player2, player1_table)
+	# print(f"Hand of player 2: {player2}")
+	print(f"last requests from computer {player2_last_picks}")
+	player1_table, player1_last_picks = player_ask(player1, player2, player1_table)
+
 	if not player2 or not player1:
 		break
 	print("player 2 turn")
 	# Cheat print for testing purposes
+	# print(f"Hand of player 1: {player1}")
 	print("computers turn")
-	print(f"Hand of player 1: {player1}")
-	player2_table = computer_ask(player2, player1, player2_table)
+	player2_table, player2_last_picks = computer_ask(player2, player2_table, player1, player1_last_picks)
+	
 
 # Winning conditions:
 if len(player1_table) > len(player2_table):
+	print(f"No. of Pairs of Player 1: {len(player1_table)}")
+	print(f"No. of Pairs of Player 2: {len(player2_table)}")
 	print(f"Player 1 has won this game with {len(player1_table)} pairs")
 elif len(player2_table) > len(player1_table):
+	print(f"No. of Pairs of Player 2: {len(player2_table)}")
+	print(f"No. of Pairs of Player 1: {len(player1_table)}")
 	print(f"Player 2 has won this game with {len(player2_table)} pairs")
 else:
+	print(f"No. of Pairs of Player 1: {len(player1_table)}")
+	print(f"No. of Pairs of Player 2: {len(player2_table)}")
 	print("The game ended in a draw")
 print("game finished")
 
