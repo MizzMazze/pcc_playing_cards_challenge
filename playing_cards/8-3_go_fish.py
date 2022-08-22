@@ -124,7 +124,7 @@ def player_go_fish():
 
 
 def computer_pick(computer_hand, opponent_last_picks):
-	print(f"the previous picks from player 1: {opponent_last_picks}")
+	# print(f"the previous picks from player 1: {opponent_last_picks}")
 	for c in computer_hand:
 		if get_value(c) in opponent_last_picks:
 			opponent_last_picks.remove(get_value(c))
@@ -200,7 +200,7 @@ while len(player1) > 0 and len(player2) > 0:
 	print("player 1 turn")
 	# Cheat print for testing purposes
 	# print(f"Hand of player 2: {player2}")
-	print(f"last requests from computer {player2_last_picks}")
+	# print(f"last requests from computer {player2_last_picks}")
 	player1_table, player1_last_picks = player_ask(player1, player2, player1_table)
 
 	if not player2 or not player1:
