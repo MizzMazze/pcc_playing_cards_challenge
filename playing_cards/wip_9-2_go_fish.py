@@ -68,16 +68,27 @@ class Deck:
 	def show_deck_size(self):
 		print("Current size of Deck: {}".format(len(self.card_deck)))
 
+class Player:
+	def __init__(self, name, hand_size, book):
+		self.name = name
+		self.hand_size = hand_size
+		self.hand = Hand(hand_size)
+		self.book = book
 
 class Hand(Deck):
-	def __init__(self, label=''):
+	def __init__(self, hand_size):
 		self.card_deck = []
-		self.label = label
+		# self.label = label
 
 
-def check_pairs(hand, book):
+
+
+
+
+def check_pairs(hand, table):
 	hand_sorted = sorted(hand, key=lambda v: v.value)
 	pairs = []
+	print(len(hand_sorted))
 	if len(hand_sorted) > 1:
 		index = 0
 		while index < len(hand_sorted)-1:
@@ -89,69 +100,39 @@ def check_pairs(hand, book):
 				for p in pairs:
 					hand_sorted.remove(p)
 				index = 0
-				book.append(pairs)
+				table.append(pairs)
 				pairs = []
-		return hand_sorted, book
-
-def player_pick(human):
-	while True:
-		print("your hand:")
-		human.show()
-		pick = input("Pick a card from your hand: ")
-		if any(pick in card.get_value() for card in human.card_deck):
-			print(f"Do you have any {pick}s ?")
-			# test = [human.card_deck.index(pick) for card in human.card_deck if card.get_value() == pick]
-			# value_list = [card.get_value() for card in human.card_deck if card.get_value() == pick]
-			indices = (i for i, card in enumerate(human.card_deck) if card.get_value() == pick)
-			# print(value_list)
-			# print(human.card_deck)
-			return human.card_deck[next(indices)]
-		print("This card is not in your hand.")
-
-def player_ask(player, opponent, player_book):
-	opponent_sorted = sorted(opponent.card_deck, key=lambda v: v.value)
-	index = 0
-	pair = []
-	len_opponent_hand = len(opponent.card_deck)-1
-	while True:
-		pick = player_pick(player)
-		while index <= len_opponent_hand:
-			player_card = pick.get_value()
-			opponent_card = opponent.card_deck[index].get_value()
-			print(player_card, opponent_card)
-			index += 1
-			if Card.same_value(pick, opponent.card_deck[index]):
-				return pick
+		return hand_sorted, table
 
 
 # Driver Code
 
 deck = Deck()
 deck.shuffle_deck()
-# deck.show_deck_size()
+deck.show_deck_size()
 
-human = Hand('player')
-deck.deal_hand(human, 7)
-human_book = []
+# hand.card_deck.show()
+# test_book = []
+test = Player('test', 7, [])
+deck.deal_hand(test.hand, 7)
 
-computer = Hand('computer')
-deck.deal_hand(computer, 7)
-computer_book = []
-
-
-"""human.show_deck_size()
-human.show()
-computer.show_deck_size()
-computer.show()
-deck.show_deck_size()"""
-
-human.card_deck, human_book = check_pairs(human.card_deck, human_book)
-human.show()
-print(len(human_book))
-computer.card_deck, computer_book = check_pairs(computer.card_deck, computer_book)
-computer.show()
-print(len(human_book))
+print(test.name, test.book)
+test.hand.show()
+print(dir(test.hand))
 
 
-test = player_ask(human, computer, human_book)
-print(test)
+# player = deck.deal_hand()
+# player_table = []
+
+# computer = deck.deal_hand()
+
+# player, player_table = check_pairs(player, player_table)
+
+"""for p in player:
+	p.show_card()"""
+
+"""random_pick = choice(computer)
+random_pick.show_card()
+random_pick.get_suit()
+random_pick.get_value()
+print(f"{random_pick.get_value()}, {random_pick.get_suit()}")"""
