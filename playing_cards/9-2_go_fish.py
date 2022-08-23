@@ -1,4 +1,5 @@
 from random import choice, shuffle, randint
+import operator
 
 class Card:
 	""" A class to model cards."""
@@ -60,7 +61,7 @@ class Deck:
 	def add_card(self, card):
 		self.card_deck.append(card)
 
-	def deal_hand(self, hand, num=7):
+	def deal_hand(self, hand, num):
 		for n in range(0, num):
 			hand.add_card(self.get_first_card())
 
@@ -74,23 +75,52 @@ class Hand(Deck):
 		self.label = label
 
 
+def check_pairs(hand, table):
+	hand_sorted = sorted(hand, key=lambda v: v.value)
+	pairs = []
+	print(len(hand_sorted))
+	if len(hand_sorted) > 1:
+		index = 0
+		while index < len(hand_sorted)-1:
+			if hand_sorted[index].get_value() == hand_sorted[index+1].get_value():
+				pairs.append(hand_sorted[index])
+				pairs.append(hand_sorted[index+1])
+			index += 1
+			if len(pairs) > 0:
+				for p in pairs:
+					hand_sorted.remove(p)
+				index = 0
+				table.append(pairs)
+				pairs = []
+		return hand_sorted, table
+
+
 # Driver Code
 
 deck = Deck()
 deck.shuffle_deck()
 deck.show_deck_size()
 
-human = Hand('human player')
-computer = Hand('Computer')
+hand = Hand('new_hand')
 
-deck.deal_hand(human, 7)
-deck.deal_hand(computer, 7)
-human.show_deck_size()
-human.show()
-computer.show_deck_size()
-computer.show()
+deck.deal_hand(hand, 7)
+hand.show_deck_size()
 deck.show_deck_size()
 
-random_computer = computer.get_random_card()
-random_computer.show_card()
-print(f"{random_computer.get_value()}, {random_computer.get_suit()}")
+hand.show()
+
+# player = deck.deal_hand()
+# player_table = []
+
+# computer = deck.deal_hand()
+
+# player, player_table = check_pairs(player, player_table)
+
+"""for p in player:
+	p.show_card()"""
+
+"""random_pick = choice(computer)
+random_pick.show_card()
+random_pick.get_suit()
+random_pick.get_value()
+print(f"{random_pick.get_value()}, {random_pick.get_suit()}")"""
