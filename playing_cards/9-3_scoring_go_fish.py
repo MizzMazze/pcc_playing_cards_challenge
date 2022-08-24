@@ -23,8 +23,6 @@ class Card:
 		values = [v.value for v in cards]
 		return len(set(values)) < 2
 
-	# def same_suit(self, other):
-	#	return self.suit == other.suit
 	def same_suit(*cards):
 		suits = [s.suit for s in cards]
 		return len(set(suits)) < 2
@@ -71,10 +69,12 @@ class Deck:
 		return len(self.card_deck)
 
 
-class Hand(Deck):
-	def __init__(self, label=''):
-		self.card_deck = []
+class Player(Deck):
+	def __init__(self, label):
 		self.label = label
+		self.card_deck = []
+		self.book = []
+
 
 
 def check_pairs(hand, book):
@@ -217,10 +217,12 @@ deck.shuffle_deck()
 
 
 # Initialize Players and books
-human = Hand('player')
-human_book = []
-computer = Hand('computer')
-computer_book = []
+human = Player('player')
+computer = Player('computer')
+""" Assigning book attribute to separate variables -
+	lazy solution because I don't want to rewrite all functions """
+human_book = human.book
+computer_book = computer.book
 
 # Deal hands to players
 deck.deal_hand(human, 7)
@@ -229,6 +231,7 @@ deck.deal_hand(computer, 7)
 # Check for pairs after initial deal
 human.card_deck, human_book = check_pairs(human.card_deck, human_book)
 computer.card_deck, computer_book = check_pairs(computer.card_deck, computer_book)
+
 
 
 # Game running
