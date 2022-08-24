@@ -1,5 +1,4 @@
 from random import choice, shuffle, randint
-import operator
 
 class Card:
 	""" A class to model cards."""
@@ -108,50 +107,134 @@ def player_pick(human):
 			return human.card_deck[next(indices)]
 		print("This card is not in your hand.")
 
-def player_ask(player, opponent, player_book):
-	opponent_sorted = sorted(opponent.card_deck, key=lambda v: v.value)
+def player_ask(player, player_book, opponent):
+	# opponent = sorted(opponent.card_deck, key=lambda v: v.value)
 	index = 0
 	pair = []
 	len_opponent_hand = len(opponent.card_deck)-1
 	while True:
 		pick = player_pick(player)
 		while index <= len_opponent_hand:
-			player_card = pick.get_value()
-			opponent_card = opponent.card_deck[index].get_value()
-			print(player_card, opponent_card)
-			index += 1
+			# print(pick)
+			# comment row below out when finished with debugging
+			# opponent_card = opponent.card_deck[index].show_card()
 			if Card.same_value(pick, opponent.card_deck[index]):
-				return pick
+				print(f"found a pair of {pick.get_value()} and {opponent.card_deck[index].get_value()}")
+				print("Removing pair from both Decks")
+				pair.append(pick)
+				pair.append(opponent.card_deck[index])
+				player_book.append(pair)
+				pair = []
+				player.card_deck.remove(pick)
+				del opponent.card_deck[index]
+				if not player.card_deck or not opponent.card_deck:
+					return player_book
+				index = 0
+				len_opponent_hand = len(opponent.card_deck)-1
+				pick = player_pick(player)
+				continue
+			else:
+				index += 1
+		player_go_fish()
+		player.card_deck, player_book = check_pairs(player.card_deck, player_book)
+		return player_book
 
+def player_go_fish():
+	print("Go Fish!")
+	deck.deal_hand(human, 1)
+
+def computer_pick(computer_hand):
+	return computer_hand.get_random_card()
+
+def computer_ask(computer_hand, computer_book, opponent_hand):
+	index = 0
+	pair = []
+	len_opponent_hand = len(opponent_hand.card_deck)-1
+	while True:
+		computer_card = computer_pick(computer_hand)
+		print(f"Do you have any {computer_card.get_value()}s ?")
+		while index <= len_opponent_hand:
+			if Card.same_value(computer_card, opponent_hand.card_deck[index]):
+				print(f"found a pair of {computer_card.get_value()} and {opponent_hand.card_deck[index].get_value()}")
+				print("Adding pair to my book")
+				pair.append(computer_card)
+				pair.append(opponent_hand.card_deck[index])
+				computer_book.append(pair)
+				pair = []
+				del opponent_hand.card_deck[index]
+				if not computer_hand.card_deck or not opponent_hand.card_deck:
+					return computer_book
+				index = 0
+				len_opponent_hand = len(opponent_hand.card_deck)-1
+				computer_card = computer_pick(computer_hand)
+				print(f"Do you have any {computer_card.get_value()}s ?")
+				continue
+			else:
+				index += 1
+		computer_hand.add_card(computer_card)
+		# computer_hand.show()
+		computer_go_fish()
+		# print("---")
+		computer_hand.card_deck, computer_book = check_pairs(computer_hand.card_deck, computer_book)
+		# computer.show()
+		return computer_book
+
+def computer_go_fish():
+	print("Computer goes fishing!")
+	deck.deal_hand(computer, 1)
+	
 
 # Driver Code
 
+# Build Deck
 deck = Deck()
 deck.shuffle_deck()
-# deck.show_deck_size()
 
+
+# Initialize Players and books
 human = Hand('player')
-deck.deal_hand(human, 7)
 human_book = []
-
 computer = Hand('computer')
-deck.deal_hand(computer, 7)
 computer_book = []
 
+# Deal hands to players
+deck.deal_hand(human, 7)
+deck.deal_hand(computer, 7)
 
-"""human.show_deck_size()
-human.show()
-computer.show_deck_size()
-computer.show()
-deck.show_deck_size()"""
-
+# Check for pairs after initial deal
 human.card_deck, human_book = check_pairs(human.card_deck, human_book)
-human.show()
-print(len(human_book))
 computer.card_deck, computer_book = check_pairs(computer.card_deck, computer_book)
-computer.show()
-print(len(human_book))
 
 
-test = player_ask(human, computer, human_book)
-print(test)
+# Game running
+while len(human.card_deck) > 0 and len(computer.card_deck) > 0:
+
+	if not human.card_deck or not computer.card_deck:
+		break
+	print("Human player turn")
+	# show opponent hand for debugging
+	# computer.show()
+	human_book = player_ask(human, human_book, computer)
+
+	if not computer.card_deck or not human.card_deck:
+		break
+	print("Computer player turn")
+	# Show opponent hand for debugging
+	# human.show()
+	computer_book = computer_ask(computer, computer_book, human)
+
+# Winning conditions
+if len(human_book) > len(computer_book):
+	print(f"No. of Pairs of Human Player: {len(human_book)}")
+	print(f"No. of Pairs of Computer Player: {len(computer_book)}")
+	print(f"Human player has won this game with {len(human_book)} pairs")
+elif len(human_book) < len(computer_book):
+	print(f"No. of Pairs of Computer Player: {len(computer_book)}")
+	print(f"No. of Pairs of Human Player: {len(human_book)}")
+	print(f"Computer player has won this game with {len(computer_book)} pairs")
+else:
+	print(f"No. of Pairs of Human Player: {len(human_book)}")
+	print(f"No. of Pairs of Computer Player: {len(computer_book)}")
+	print("The game ended in a draw")
+
+print("Game over")
