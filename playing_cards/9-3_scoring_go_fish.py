@@ -17,8 +17,6 @@ class Card:
 	def get_value(self):
 		return self.value
 
-	# def same_value(self, other):
-	# 	return self.value == other.value
 	def same_value(*cards):
 		values = [v.value for v in cards]
 		return len(set(values)) < 2
