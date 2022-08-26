@@ -69,11 +69,13 @@ class Deck:
 
 
 class Player(Deck):
-	def __init__(self, label):
+	def __init__(self, label, games_won=0, games_lost=0):
 		self.label = label
 		self.card_deck = []
 		self.book = []
 		self.last_picks = []
+		self.games_won = games_won
+		self.games_lost = games_lost
 
 
 
@@ -93,6 +95,7 @@ def check_pairs(hand, book):
 				index = 0
 				book.append(pairs)
 				pairs = []
+		# hand.number_pairs = len(book)
 		return hand_sorted, book
 
 def player_pick(human):
@@ -203,11 +206,10 @@ def winning_conditions(human_book, computer_book):
 		print("The game ended in a draw")
 		return 2
 
-def write_statistics(turns, winner, loser, stats_file):
+def write_verb_statistics(turns, winner, loser, stats_file):
 	with open(stats_file, 'a') as file_object:
 		now = datetime.now()
 		current_date_time = now.strftime("%d/%m/%Y %H:%M:%S")
-		# file_object.write("Go Fish game finished at: "current_date " - ", current_time"\n")
 		file_object.write(f"Go Fish game finished at: {current_date_time}\n")
 		file_object.write(f"Number of Turns: {turns}\n")
 		file_object.write(f"Winner: {winner.label} - Loser: {loser.label}\n")
@@ -216,7 +218,11 @@ def write_statistics(turns, winner, loser, stats_file):
 # Driver Code
 
 # Statistics File
-verb_game_stats = 'go_fish_statistics.txt'
+# The "go_fish_verb_statistics.txt" file contains the statistics for each game played in a human readable text.
+verb_game_stats = 'go_fish_verb_statistics.txt'
+
+""" The "go_fish_game_stats.txt" file contains the overall statistics
+	It's written when the game has ended."""
 
 # Show all statistics when starting
 
@@ -228,20 +234,17 @@ deck.shuffle_deck()
 # Initialize Players and books
 human = Player('player')
 computer = Player('computer')
-""" Assigning book attribute to separate variables -
-	lazy solution because I don't want to rewrite all functions """
-human_book = human.book
-computer_book = computer.book
 
 # Deal hands to players
 deck.deal_hand(human, 7)
 deck.deal_hand(computer, 7)
 
 # Check for pairs after initial deal
-human.card_deck, human_book = check_pairs(human.card_deck, human_book)
-computer.card_deck, computer_book = check_pairs(computer.card_deck, computer_book)
+human.card_deck, human.book = check_pairs(human.card_deck, human.book)
+computer.card_deck, computer.book = check_pairs(computer.card_deck, computer.book)
 
-
+print(human.games_won, human.games_lost, len(human.book))
+print(computer.games_won, computer.games_lost, len(computer.book))
 
 # Game running
 num_rounds = 0
@@ -255,29 +258,35 @@ while len(human.card_deck) > 0 and len(computer.card_deck) > 0:
 	print("Human player turn")
 	# show opponent hand for debugging
 	# computer.show()
-	human_book = player_ask(human, human_book, computer)
+	human.book = player_ask(human, human.book, computer)
 	#print(human.last_picks)
 	if not human.card_deck or not computer.card_deck:
-		if winning_conditions(human_book, computer_book) == 0:
-			write_statistics(num_rounds, human, computer, verb_game_stats)
-		elif winning_conditions(human_book, computer_book) == 1:
-			write_statistics(num_rounds, computer, human, verb_game_stats)
-		elif winning_conditions(human_book, computer_book) == 2:
-			write_statistics(num_rounds, human, computer, verb_game_stats)
+		if winning_conditions(human.book, computer.book) == 0:
+			human.games_won += 1
+			computer.games_lost += 1
+			print(human.games_won, computer.games_lost)
+			write_verb_statistics(num_rounds, human, computer, verb_game_stats)
+		elif winning_conditions(human.book, computer.book) == 1:
+			computer.games_won += 1
+			human.games_lost += 1
+			print(human.games_won, computer.games_lost)
+			write_verb_statistics(num_rounds, computer, human, verb_game_stats)
+		elif winning_conditions(human.book, computer.book) == 2:
+			write_verb_statistics(num_rounds, human, computer, verb_game_stats)
 		break
 	# if (winning_conditions(human_book, computer_book)):
 	# 	break
 	print("Computer player turn")
 	# Show opponent hand for debugging
 	# human.show()
-	computer_book = computer_ask(computer, computer_book, human)
+	computer.book = computer_ask(computer, computer.book, human)
 	if not human.card_deck or not computer.card_deck:
-		if winning_conditions(human_book, computer_book) == 0:
-			write_statistics(num_rounds, human, computer, verb_game_stats)
-		elif winning_conditions(human_book, computer_book) == 1:
-			write_statistics(num_rounds, computer, human, verb_game_stats)
-		elif winning_conditions(human_book, computer_book) == 2:
-			write_statistics(num_rounds, human, computer, verb_game_stats)
+		if winning_conditions(human.book, computer.book) == 0:
+			write_verb_statistics(num_rounds, human, computer, verb_game_stats)
+		elif winning_conditions(human.book, computer.book) == 1:
+			write_verb_statistics(num_rounds, computer, human, verb_game_stats)
+		elif winning_conditions(human.book, computer.book) == 2:
+			write_verb_statistics(num_rounds, human, computer, verb_game_stats)
 		break
 	# print(computer.last_picks)
 
